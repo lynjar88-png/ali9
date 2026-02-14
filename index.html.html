@@ -43,6 +43,11 @@
             --amount-color: #065f46;
             --switch-bg: #cbd5e1;
             --switch-active: #0284c7;
+            --toast-bg: rgba(0,0,0,0.8);
+            --toast-color: white;
+            --confirm-bg: white;
+            --confirm-color: #01497c;
+            --confirm-border: #0284c7;
         }
 
         body.dark-mode {
@@ -76,6 +81,11 @@
             --amount-color: #a7f3d0;
             --switch-bg: #4a5568;
             --switch-active: #90caf9;
+            --toast-bg: rgba(0,0,0,0.9);
+            --toast-color: #e0e0e0;
+            --confirm-bg: #2d2d2d;
+            --confirm-color: #90caf9;
+            --confirm-border: #90caf9;
         }
 
         body {
@@ -259,6 +269,12 @@
             border-color: var(--btn-primary);
         }
 
+        .btn-danger {
+            background: #dc2626;
+            border-color: #b91c1c;
+            color: white;
+        }
+
         /* الفلاتر الإضافية */
         .filters-row {
             display: flex;
@@ -349,6 +365,20 @@
             font-size: 0.85rem;
             gap: 5px;
             flex-shrink: 0;
+        }
+
+        .delete-all-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .orders-list {
@@ -539,15 +569,16 @@
             color: #ddd;
         }
 
-        .status-select {
-            background: var(--input-bg);
-            border: 2px solid var(--input-border);
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--stat-bg);
             border-radius: 40px;
-            padding: 4px 8px;
-            color: var(--text-secondary);
-            font-weight: 600;
+            padding: 4px 12px;
             font-size: 0.75rem;
             cursor: pointer;
+            border: 1px solid var(--card-border);
         }
 
         .empty-message {
@@ -557,6 +588,104 @@
             background: var(--card-bg);
             border-radius: 50px;
             font-size: 0.9rem;
+        }
+
+        /* Toast رسائل منبثقة */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 3000;
+        }
+
+        .toast-message {
+            background: var(--toast-bg);
+            color: var(--toast-color);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            animation: slideUp 0.3s ease;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Confirm رسالة تأكيد احترافية */
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+        }
+
+        .confirm-box {
+            background: var(--confirm-bg);
+            border: 3px solid var(--confirm-border);
+            border-radius: 40px;
+            padding: 24px;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+
+        .confirm-box h3 {
+            color: var(--confirm-color);
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        .confirm-box p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .confirm-yes {
+            background: #dc2626;
+            color: white;
+        }
+
+        .confirm-no {
+            background: var(--stat-bg);
+            color: var(--text-primary);
         }
 
         /* مودالات */
@@ -899,7 +1028,7 @@
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- رأس التطبيق مع اسم جديد -->
+        <!-- رأس التطبيق -->
         <div class="app-header">
             <div class="icon-placeholder"><span>📱</span></div>
             <h1>علي كاظم</h1>
@@ -941,14 +1070,29 @@
             <div class="bar" style="height:20px" id="barUrgent"></div>
         </div>
 
-        <!-- قائمة الطلبات -->
+        <!-- قائمة الطلبات مع زر حذف الكل -->
         <div class="main-content">
             <div class="orders-header">
                 <h3>🚚 قائمة الطلبات</h3>
-                <span>(مرتبة حسب كود المنطقة)</span>
+                <button class="delete-all-btn" id="deleteAllOrdersBtn">🗑 حذف الكل</button>
             </div>
             <div class="orders-list" id="ordersList">
                 <div class="empty-message">لا توجد طلبات بعد</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast للرسائل المنبثقة -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confirm للتأكيد -->
+    <div class="confirm-overlay" id="confirmOverlay" style="display: none;">
+        <div class="confirm-box">
+            <h3 id="confirmTitle">تأكيد</h3>
+            <p id="confirmMessage">هل أنت متأكد من هذه العملية؟</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-yes" id="confirmYes">نعم</button>
+                <button class="confirm-btn confirm-no" id="confirmNo">لا</button>
             </div>
         </div>
     </div>
@@ -1113,7 +1257,7 @@
         </div>
     </div>
 
-    <!-- مودال التعديل -->
+    <!-- مودال تعديل الطلب (مع قائمة منسدلة للحالة) -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1150,6 +1294,15 @@
                         </select>
                     </div>
                     <div class="full-width">
+                        <label>الحالة</label>
+                        <select id="editStatus" class="input-select">
+                            <option value="pending">⏳ قيد التنفيذ</option>
+                            <option value="done">✅ تم</option>
+                            <option value="deferred">⏱️ مؤجل</option>
+                            <option value="cancelled">❌ ملغي</option>
+                        </select>
+                    </div>
+                    <div class="full-width">
                         <label>ملاحظات</label>
                         <textarea id="editNotes" class="input-textarea"></textarea>
                     </div>
@@ -1164,7 +1317,7 @@
             'use strict';
 
             const REGIONS_KEY = 'delivery_regions_pro';
-            const ORDERS_KEY = 'delivery_orders_pro_v8';
+            const ORDERS_KEY = 'delivery_orders_pro_v10';
             const DARK_MODE_KEY = 'dark_mode';
             const SETTINGS_KEY = 'app_settings';
             const DAILY_NOTES_KEY = 'daily_notes';
@@ -1211,6 +1364,13 @@
             const dailyNotesSection = document.getElementById('dailyNotesSection');
             const dailyNotes = document.getElementById('dailyNotes');
             const darkModeToggle = document.getElementById('darkModeToggle');
+            const deleteAllOrdersBtn = document.getElementById('deleteAllOrdersBtn');
+            const toastContainer = document.getElementById('toastContainer');
+            const confirmOverlay = document.getElementById('confirmOverlay');
+            const confirmTitle = document.getElementById('confirmTitle');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const confirmYes = document.getElementById('confirmYes');
+            const confirmNo = document.getElementById('confirmNo');
 
             // عناصر الإعدادات
             const profitAmountInput = document.getElementById('profitAmount');
@@ -1256,6 +1416,7 @@
             const editCustomerPhone = document.getElementById('editCustomerPhone');
             const editAmount = document.getElementById('editAmount');
             const editPriority = document.getElementById('editPriority');
+            const editStatus = document.getElementById('editStatus');
             const editNotes = document.getElementById('editNotes');
 
             // دوال مساعدة
@@ -1266,17 +1427,13 @@
 
             // دالة للتحقق من صيغة الرقم العراقي (11 رقم، يبدأ بـ 077 أو 078 أو 079)
             function validateIraqiPhone(phone) {
-                // إزالة المسافات والشرطات
                 let cleaned = phone.replace(/\s+/g, '').replace(/-/g, '');
-                // يجب أن يتكون من أرقام فقط
                 if (!/^\d+$/.test(cleaned)) return false;
-                // يجب أن يبدأ بـ 077 أو 078 أو 079
                 if (!cleaned.startsWith('077') && !cleaned.startsWith('078') && !cleaned.startsWith('079')) return false;
-                // الطول الكلي 11 رقم
                 return cleaned.length === 11;
             }
 
-            // دالة لتنظيف رقم الهاتف (إزالة كل الرموز والمسافات)
+            // دالة لتنظيف رقم الهاتف
             function cleanPhoneNumber(phone) {
                 return phone.replace(/\s+/g, '').replace(/[^\d]/g, '');
             }
@@ -1285,6 +1442,63 @@
             function getFullPhoneNumber(localNumber) {
                 const cleaned = cleanPhoneNumber(localNumber);
                 return '964' + cleaned;
+            }
+
+            // Toast رسالة منبثقة
+            function showToast(message, duration = 3000) {
+                const toast = document.createElement('div');
+                toast.className = 'toast-message';
+                toast.textContent = message;
+                toastContainer.innerHTML = '';
+                toastContainer.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        if (toastContainer.contains(toast)) {
+                            toastContainer.innerHTML = '';
+                        }
+                    }, 300);
+                }, duration);
+            }
+
+            // Confirm مخصص
+            function showConfirm(title, message, onConfirm, onCancel) {
+                confirmTitle.textContent = title;
+                confirmMessage.textContent = message;
+                confirmOverlay.style.display = 'flex';
+                
+                const handleYes = () => {
+                    confirmOverlay.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                    if (onConfirm) onConfirm();
+                };
+                
+                const handleNo = () => {
+                    confirmOverlay.style.display = 'none';
+                    confirmYes.removeEventListener('click', handleYes);
+                    confirmNo.removeEventListener('click', handleNo);
+                    if (onCancel) onCancel();
+                };
+                
+                confirmYes.addEventListener('click', handleYes);
+                confirmNo.addEventListener('click', handleNo);
+            }
+
+            // حذف جميع الطلبات
+            function deleteAllOrders() {
+                if (orders.length === 0) {
+                    showToast('لا توجد طلبات للحذف');
+                    return;
+                }
+                
+                showConfirm('تأكيد', 'هل أنت متأكد من حذف جميع الطلبات؟', () => {
+                    orders = [];
+                    saveOrders();
+                    renderOrders();
+                    showToast('✅ تم حذف جميع الطلبات');
+                });
             }
 
             // تحميل الإعدادات
@@ -1327,7 +1541,7 @@
                 };
                 localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
                 updateUIBasedOnSettings();
-                alert('تم حفظ الإعدادات');
+                showToast('تم حفظ الإعدادات بنجاح');
             }
 
             function updateUIBasedOnSettings() {
@@ -1472,7 +1686,7 @@
                         if (idx !== null) {
                             const regionId = regions[idx]?.id;
                             if (orders.some(o => o.regionId === regionId)) {
-                                alert('لا يمكن حذف المنطقة لأن هناك طلبات مرتبطة بها.');
+                                showToast('❌ لا يمكن حذف المنطقة لأن هناك طلبات مرتبطة بها');
                                 return;
                             }
                             regions.splice(idx, 1);
@@ -1481,6 +1695,7 @@
                             renderRegionsList();
                             populateRegionSelect();
                             renderOrders();
+                            showToast('✅ تم حذف المنطقة بنجاح');
                         }
                     });
                 });
@@ -1489,8 +1704,14 @@
             function addRegion() {
                 const name = regionNameInput.value.trim();
                 const code = regionCodeInput.value.trim();
-                if (!name || !code) return alert('الرجاء إدخال الاسم والكود');
-                if (regions.some(r => r.code === code)) return alert('الكود مستخدم مسبقاً');
+                if (!name || !code) {
+                    showToast('❌ الرجاء إدخال الاسم والكود');
+                    return;
+                }
+                if (regions.some(r => r.code === code)) {
+                    showToast('❌ الكود مستخدم مسبقاً');
+                    return;
+                }
                 regions.push({ id: 'r_' + Date.now() + Math.random().toString(36).substr(2,5), name, code });
                 saveRegions();
                 loadRegions();
@@ -1498,6 +1719,7 @@
                 regionCodeInput.value = '';
                 renderRegionsList();
                 populateRegionSelect();
+                showToast('✅ تم إضافة المنطقة بنجاح');
             }
 
             function addOrder(event) {
@@ -1511,13 +1733,13 @@
                 const imageFile = orderImageInput.files[0];
 
                 if (!regionId || !customerName || !customerPhone) {
-                    alert('الرجاء اختيار المنطقة وإدخال اسم الزبون ورقم الهاتف');
+                    showToast('❌ الرجاء اختيار المنطقة وإدخال اسم الزبون ورقم الهاتف');
                     return;
                 }
 
                 const cleanedLocal = cleanPhoneNumber(customerPhone);
                 if (!validateIraqiPhone(cleanedLocal)) {
-                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح مكون من 11 رقمًا ويبدأ بـ 077 أو 078 أو 079');
+                    showToast('❌ رقم الهاتف غير صحيح. يجب أن يكون 11 رقمًا ويبدأ بـ 077 أو 078 أو 079');
                     return;
                 }
                 customerPhone = cleanedLocal;
@@ -1554,6 +1776,7 @@
                     orderImageInput.value = '';
                     orderModal.classList.remove('show');
                     renderOrders();
+                    showToast('✅ تم إضافة الطلب بنجاح');
                 };
                 if (imageFile) {
                     reader.readAsDataURL(imageFile);
@@ -1590,10 +1813,18 @@
                             }
                         }
                     }
+                    showToast('✅ تم تغيير الحالة إلى "تم"');
                 } else if (order.status === 'done' && newStatus !== 'done') {
                     order.endTime = null;
                     order.duration = null;
                 }
+                
+                if (newStatus === 'deferred') {
+                    showToast('⏱️ تم تغيير الحالة إلى "مؤجل"');
+                } else if (newStatus === 'cancelled') {
+                    showToast('❌ تم تغيير الحالة إلى "ملغي"');
+                }
+                
                 order.status = newStatus;
                 saveOrders();
                 renderOrders();
@@ -1605,6 +1836,7 @@
                     order.rating = rating;
                     saveOrders();
                     renderOrders();
+                    showToast(`⭐ تم تقييم الزبون بـ ${rating} نجوم`);
                 }
             }
 
@@ -1626,6 +1858,7 @@
                 orders.push(newOrder);
                 saveOrders();
                 renderOrders();
+                showToast('📋 تم نسخ الطلب بنجاح');
             }
 
             function openMaps(regionName) {
@@ -1672,9 +1905,19 @@
                 filtered.forEach(order => {
                     const region = regionMap[order.regionId] || { name: 'منطقة محذوفة', code: '?' };
                     let statusClass = '';
-                    if (order.status === 'done') statusClass = 'done';
-                    else if (order.status === 'deferred') statusClass = 'deferred';
-                    else if (order.status === 'cancelled') statusClass = 'cancelled';
+                    let statusText = '';
+                    if (order.status === 'done') {
+                        statusClass = 'done';
+                        statusText = '✅ تم';
+                    } else if (order.status === 'deferred') {
+                        statusClass = 'deferred';
+                        statusText = '⏱️ مؤجل';
+                    } else if (order.status === 'cancelled') {
+                        statusClass = 'cancelled';
+                        statusText = '❌ ملغي';
+                    } else {
+                        statusText = '⏳ قيد التنفيذ';
+                    }
 
                     const fullPhone = getFullPhoneNumber(order.customerPhone);
                     const waMessage = encodeURIComponent(`السلام عليكم، طلبك من منطقة ${region.name} (كود ${region.code})، الزبون: ${order.customerName}. المبلغ: ${formatAmount(order.amount)} د.ع. ملاحظات: ${order.customerNotes || 'لا يوجد'}`);
@@ -1692,19 +1935,6 @@
                         const seconds = Math.floor((elapsed % 60000) / 1000);
                         timeText = `⏳ قيد التنفيذ: ${minutes} د ${seconds} ث`;
                     }
-
-                    let statusOptions = `
-                        <select class="status-select" data-id="${order.id}">
-                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ قيد التنفيذ</option>
-                            <option value="done" ${order.status === 'done' ? 'selected' : ''}>✅ تم</option>
-                    `;
-                    if (settings.enableExtraStatus) {
-                        statusOptions += `
-                            <option value="deferred" ${order.status === 'deferred' ? 'selected' : ''}>⏱️ مؤجل</option>
-                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ ملغي</option>
-                        `;
-                    }
-                    statusOptions += `</select>`;
 
                     let ratingHtml = '';
                     if (settings.enableRatings) {
@@ -1734,7 +1964,7 @@
                                 <div class="order-detail-item"><strong>الزبون:</strong> <span>${escapeHTML(order.customerName)}</span></div>
                                 <div class="order-detail-item"><strong>الهاتف:</strong> <span dir="ltr">+964 ${escapeHTML(order.customerPhone)}</span></div>
                                 <div class="order-detail-item"><strong>الأولوية:</strong> <span>${order.priority === 'عاجل' ? '🔴 عاجل' : '🟡 عادي'}</span></div>
-                                <div class="order-detail-item"><strong>الحالة:</strong> ${statusOptions}</div>
+                                <div class="order-detail-item"><strong>الحالة:</strong> <span class="status-badge" onclick="document.getElementById('editModal').classList.add('show'); openEditModal(${JSON.stringify(order).replace(/"/g, '&quot;')})">${statusText}</span></div>
                                 <div class="order-amount"><strong>💰</strong> ${formatAmount(order.amount)} د.ع</div>
                             </div>
                             ${order.customerNotes ? `<div class="order-notes">📝 ${escapeHTML(order.customerNotes)}</div>` : ''}
@@ -1756,15 +1986,20 @@
 
                 ordersListDiv.innerHTML = html;
 
-                document.querySelectorAll('.status-select').forEach(select => {
-                    select.addEventListener('change', function() {
-                        changeStatus(this.dataset.id, this.value);
-                    });
-                });
-
                 document.querySelectorAll('.done-checkbox').forEach(cb => {
                     cb.addEventListener('change', function() {
-                        changeStatus(this.dataset.id, this.checked ? 'done' : 'pending');
+                        const orderId = this.dataset.id;
+                        const isChecked = this.checked;
+                        
+                        if (isChecked) {
+                            changeStatus(orderId, 'done');
+                        } else {
+                            showConfirm('تأكيد', 'هل أنت متأكد من إلغاء حالة "تم"؟', () => {
+                                changeStatus(orderId, 'pending');
+                            }, () => {
+                                this.checked = true;
+                            });
+                        }
                     });
                 });
 
@@ -1779,11 +2014,12 @@
                 document.querySelectorAll('.action-btn.delete').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const orderId = btn.dataset.id;
-                        if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
+                        showConfirm('تأكيد الحذف', 'هل أنت متأكد من حذف هذا الطلب؟', () => {
                             orders = orders.filter(o => o.id !== orderId);
                             saveOrders();
                             renderOrders();
-                        }
+                            showToast('✅ تم حذف الطلب بنجاح');
+                        });
                     });
                 });
 
@@ -1800,7 +2036,7 @@
                             if (order) {
                                 const fullPhone = getFullPhoneNumber(order.customerPhone);
                                 await navigator.clipboard.writeText('+' + fullPhone);
-                                alert('تم نسخ الرقم: +' + fullPhone);
+                                showToast('📋 تم نسخ الرقم: +' + fullPhone);
                             }
                         });
                     });
@@ -1834,6 +2070,7 @@
                 editCustomerPhone.value = order.customerPhone;
                 editAmount.value = order.amount;
                 editPriority.value = order.priority || 'عادي';
+                editStatus.value = order.status || 'pending';
                 editNotes.value = order.customerNotes || '';
                 editModal.classList.add('show');
             }
@@ -1847,20 +2084,34 @@
                 let customerPhone = editCustomerPhone.value.trim();
                 const cleanedLocal = cleanPhoneNumber(customerPhone);
                 if (!validateIraqiPhone(cleanedLocal)) {
-                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح يبدأ بـ 077 أو 078 أو 079 ويتكون من 11 رقمًا');
+                    showToast('❌ رقم الهاتف غير صحيح');
                     return;
                 }
+
+                const oldStatus = order.status;
+                const newStatus = editStatus.value;
 
                 order.regionId = editRegion.value;
                 order.customerName = editCustomerName.value.trim();
                 order.customerPhone = cleanedLocal;
                 order.amount = parseFloat(editAmount.value) || settings.profitAmount;
                 order.priority = editPriority.value;
+                order.status = newStatus;
                 order.customerNotes = editNotes.value.trim();
+
+                // تحديث الوقت إذا تغيرت الحالة
+                if (oldStatus !== 'done' && newStatus === 'done') {
+                    order.endTime = Date.now();
+                    order.duration = order.endTime - order.startTime;
+                } else if (oldStatus === 'done' && newStatus !== 'done') {
+                    order.endTime = null;
+                    order.duration = null;
+                }
 
                 saveOrders();
                 editModal.classList.remove('show');
                 renderOrders();
+                showToast('✅ تم تعديل الطلب بنجاح');
             }
 
             function updateStats() {
@@ -1920,6 +2171,7 @@
                 a.href = url;
                 a.download = `علي_كاظم_نسخة_احتياطية_${new Date().toISOString().slice(0,10)}.json`;
                 a.click();
+                showToast('📤 تم تصدير البيانات بنجاح');
             }
 
             function importData() {
@@ -1942,9 +2194,9 @@
                         loadSettings();
                         populateRegionSelect();
                         renderOrders();
-                        alert('تم استيراد البيانات بنجاح');
+                        showToast('📥 تم استيراد البيانات بنجاح');
                     } catch (err) {
-                        alert('خطأ في قراءة الملف');
+                        showToast('❌ خطأ في قراءة الملف');
                     }
                 };
                 reader.readAsText(file);
@@ -1953,6 +2205,7 @@
 
             // أحداث
             searchInput.addEventListener('input', renderOrders);
+            deleteAllOrdersBtn.addEventListener('click', deleteAllOrders);
 
             manageRegionsBtn.addEventListener('click', () => {
                 renderRegionsList();
@@ -2003,5 +2256,4 @@
     </script>
 </body>
 </html>
-
 
