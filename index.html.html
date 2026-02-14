@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>مندوب التوصيل · وقت متسلسل وإجمالي اليوم</title>
+    <style>
+        :root {
+            --bg-body: #e2f0ff;
+            --bg-app: white;
+            --header-bg: #0369a1;
+            --header-border: #ffb703;
+            --text-primary: #01497c;
+            --text-secondary: #02315e;
+            --card-bg: #f9fcff;
+            --card-border: #cde1f5;
+            --input-bg: white;
+            --input-border: #c7e0ff;
+            --stat-bg: #ecf5ff;
+            --stat-border: #9ac2e8;
+            --btn-outline: #0284c7;
+            --btn-outline-hover: #e1f0ff;
+            --btn-primary: #0284c7;
+            --btn-primary-hover: #0369a1;
+            --modal-bg: white;
+            --modal-border: #0284c7;
+            --shadow: rgba(0, 70, 150, 0.3);
+            --order-notes-bg: #fef7e6;
+            --order-notes-border: #ffb703;
+            --order-time-bg: #dcfce7;
+            --order-time-color: #166534;
+            --empty-message: #6b8fb0;
+            --chart-bg: #f4f9ff;
+            --bar-bg: #0284c7;
+            --amount-bg: #d1fae5;
+            --amount-color: #065f46;
+        }
+
+        body.dark-mode {
+            --bg-body: #121212;
+            --bg-app: #1e1e1e;
+            --header-bg: #0f3b5e;
+            --header-border: #b45309;
+            --text-primary: #90caf9;
+            --text-secondary: #e0e0e0;
+            --card-bg: #2d2d2d;
+            --card-border: #404040;
+            --input-bg: #333;
+            --input-border: #555;
+            --stat-bg: #2a2a2a;
+            --stat-border: #555;
+            --btn-outline: #90caf9;
+            --btn-outline-hover: #2a2a2a;
+            --btn-primary: #1e4a6d;
+            --btn-primary-hover: #0f3b5e;
+            --modal-bg: #2d2d2d;
+            --modal-border: #90caf9;
+            --shadow: rgba(0,0,0,0.7);
+            --order-notes-bg: #3e3a2c;
+            --order-notes-border: #b45309;
+            --order-time-bg: #1e3a2f;
+            --order-time-color: #a7f3d0;
+            --empty-message: #9e9e9e;
+            --chart-bg: #2a2a2a;
+            --bar-bg: #90caf9;
+            --amount-bg: #1e3a2f;
+            --amount-color: #a7f3d0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, 'Helvetica Neue', sans-serif;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background: var(--bg-body);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .app-wrapper {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--bg-app);
+            border-radius: 36px 36px 28px 28px;
+            box-shadow: 0 20px 35px -8px var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        /* رأس التطبيق */
+        .app-header {
+            background: var(--header-bg);
+            padding: 1.2rem 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            border-bottom: 4px solid var(--header-border);
+        }
+
+        .icon-placeholder {
+            background: rgba(255,255,255,0.25);
+            width: 60px;
+            height: 60px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 4px 12px rgba(0, 30, 70, 0.3);
+        }
+
+        .icon-placeholder span {
+            font-size: 36px;
+        }
+
+        .app-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            flex: 1;
+        }
+
+        /* زر الوضع الليلي */
+        .dark-mode-toggle {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .dark-mode-toggle:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        /* شريط الإحصائيات */
+        .stats-bar {
+            background: var(--bg-app);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 2px solid var(--card-border);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            background: var(--stat-bg);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            border: 1px solid var(--stat-border);
+        }
+
+        .stat-item span {
+            background: var(--btn-primary);
+            color: white;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 1.2rem;
+        }
+
+        /* إجمالي المبالغ والوقت */
+        .total-amount, .total-time {
+            background: var(--amount-bg);
+            color: var(--amount-color);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--amount-color);
+        }
+
+        /* البحث والإجراءات */
+        .search-section {
+            padding: 1.2rem 1.5rem 0.5rem 1.5rem;
+            background: var(--bg-app);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex: 2 1 300px;
+        }
+
+        .search-field {
+            flex: 1;
+            padding: 0.7rem 1.2rem;
+            border: 2px solid var(--input-border);
+            border-radius: 40px;
+            font-size: 0.95rem;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--btn-outline);
+            color: var(--btn-outline);
+            padding: 0.7rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-outline:hover {
+            background: var(--btn-outline-hover);
+        }
+
+        .btn-export {
+            background: #0f7b6b;
+            border-color: #0b5e4f;
+            color: white;
+        }
+        .btn-export:hover {
+            background: #0b5e4f;
+        }
+
+        .btn-primary {
+            background: var(--btn-primary);
+            color: white;
+            border-color: var(--btn-primary);
+        }
+        .btn-primary:hover {
+            background: var(--btn-primary-hover);
+        }
+
+        /* فلتر العاجل */
+        .filter-urgent.active {
+            background: #dc2626;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+        /* قائمة الطلبات */
+        .main-content {
+            padding: 1rem 1.5rem 1.8rem 1.5rem;
+            background: var(--bg-app);
+        }
+
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0.5rem 0 0.8rem 0;
+            flex-wrap: wrap;
+            color: var(--text-primary);
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-left: 0.2rem;
+        }
+
+        .order-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 1.2rem;
+            border: 2px solid var(--card-border);
+            box-shadow: 0 4px 8px var(--shadow);
+            transition: 0.1s;
+            color: var(--text-secondary);
+        }
+
+        .order-card.done {
+            opacity: 0.6;
+            background: var(--stat-bg);
+        }
+
+        .order-region-code {
+            background: var(--btn-primary);
+            color: white;
+            border-radius: 40px;
+            padding: 0.2rem 1rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-detail-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.4rem 0;
+        }
+
+        .order-detail-item {
+            background: var(--stat-bg);
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.3rem;
+        }
+
+        .order-amount {
+            background: var(--amount-bg);
+            color: var(--amount-color);
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+
+        .order-notes {
+            background: var(--order-notes-bg);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            margin: 0.6rem 0;
+            border-right: 4px solid var(--order-notes-border);
+        }
+
+        .order-image {
+            max-width: 100px;
+            max-height: 80px;
+            border-radius: 16px;
+            margin: 0.5rem 0;
+            border: 2px solid var(--btn-outline);
+        }
+
+        .order-time {
+            background: var(--order-time-bg);
+            color: var(--order-time-color);
+            border-radius: 30px;
+            padding: 0.2rem 1rem;
+            display: inline-block;
+            margin-top: 0.3rem;
+        }
+
+        .order-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+        }
+
+        .action-btn {
+            flex: 1 0 auto;
+            background: transparent;
+            border: 2px solid var(--btn-outline);
+            color: var(--btn-outline);
+            border-radius: 40px;
+            padding: 0.5rem 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-width: 70px;
+        }
+
+        .action-btn.whatsapp {
+            background: #25D366;
+            border-color: #128C7E;
+            color: white;
+        }
+
+        .action-btn.call {
+            background: #34b7f1;
+            border-color: #0284c7;
+            color: white;
+        }
+
+        .action-btn.done-toggle {
+            border-color: #0f7b6b;
+            color: #0f7b6b;
+        }
+
+        .action-btn.done-toggle input {
+            margin-left: 0.3rem;
+            transform: scale(1.2);
+            accent-color: #0f7b6b;
+        }
+
+        .action-btn.edit, .action-btn.delete {
+            border-color: #6b7280;
+            color: #6b7280;
+        }
+        .action-btn.delete {
+            border-color: #b91c1c;
+            color: #b91c1c;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--empty-message);
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 50px;
+        }
+
+        /* مودالات */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: var(--modal-bg);
+            max-width: 500px;
+            width: 90%;
+            border-radius: 48px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 30px 40px var(--shadow);
+            border: 3px solid var(--modal-border);
+            max-height: 80vh;
+            overflow-y: auto;
+            color: var(--text-secondary);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h2 { color: var(--text-primary); }
+        .close-modal {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--btn-outline);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem 1rem;
+        }
+        .full-width { grid-column: span 2; }
+
+        .input-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+            display: block;
+        }
+
+        .input-field, .input-select, .input-textarea, .input-priority, .input-number {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid var(--input-border);
+            border-radius: 30px;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+        }
+        .input-textarea { border-radius: 25px; resize: vertical; min-height: 60px; }
+        .file-input { background: var(--input-bg); padding: 0.5rem; }
+
+        .btn-save {
+            background: var(--btn-primary);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 8px 12px -6px var(--btn-primary);
+            margin-top: 1rem;
+        }
+        .btn-save:hover { background: var(--btn-primary-hover); }
+
+        /* مودال المناطق */
+        .region-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+        .region-form input {
+            flex: 1 1 120px;
+            padding: 0.7rem;
+            border: 2px solid var(--input-border);
+            border-radius: 40px;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+        }
+        .btn-add {
+            background: var(--btn-primary);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .items-list {
+            list-style: none;
+            background: var(--stat-bg);
+            border-radius: 32px;
+            padding: 0.3rem;
+        }
+        .item-li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            margin: 0.5rem 0;
+            padding: 0.8rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid var(--card-border);
+        }
+        .item-code {
+            background: var(--btn-primary);
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+        }
+        .delete-item {
+            background: none;
+            border: none;
+            color: #c00;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        /* الرسم البياني */
+        .mini-chart {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+            height: 60px;
+            margin: 1rem 1.5rem;
+            padding: 0.5rem;
+            background: var(--chart-bg);
+            border-radius: 40px;
+        }
+        .bar {
+            flex: 1;
+            background: var(--bar-bg);
+            border-radius: 20px 20px 8px 8px;
+            transition: height 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- رأس التطبيق مع زر الوضع الليلي -->
+        <div class="app-header">
+            <div class="icon-placeholder"><span>📱</span></div>
+            <h1>هندسة الطلبات</h1>
+            <div class="dark-mode-toggle" id="darkModeToggle">🌙</div>
+        </div>
+
+        <!-- إحصائيات -->
+        <div class="stats-bar">
+            <div class="stat-item">📦 إجمالي <span id="totalOrders">0</span></div>
+            <div class="stat-item">✅ مُنجز <span id="completedOrders">0</span></div>
+            <div class="stat-item">⏳ متبقي <span id="pendingOrders">0</span></div>
+            <div class="stat-item">🔴 عاجل <span id="urgentOrders">0</span></div>
+            <div class="total-amount" id="totalAmount">💰 0 ر.س</div>
+            <div class="total-time" id="totalTime">⏱️ 0 د</div>
+        </div>
+
+        <!-- البحث والإجراءات -->
+        <div class="search-section">
+            <div class="search-row">
+                <input type="text" id="searchInput" class="search-field" placeholder="🔍 بحث (منطقة، زبون، كود)">
+                <button class="btn-outline" id="manageRegionsBtn">🗂 المناطق</button>
+                <button class="btn-outline btn-primary" id="addOrderBtn">➕ إضافة طلب</button>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-outline" id="filterUrgentBtn">🔴 عاجل فقط</button>
+                <button class="btn-outline btn-export" id="exportExcelBtn">📥 تصدير Excel</button>
+            </div>
+        </div>
+
+        <!-- رسم بياني بسيط -->
+        <div class="mini-chart">
+            <div class="bar" style="height:20px" id="barPending"></div>
+            <div class="bar" style="height:20px" id="barCompleted"></div>
+            <div class="bar" style="height:20px" id="barUrgent"></div>
+        </div>
+
+        <!-- قائمة الطلبات -->
+        <div class="main-content">
+            <div class="orders-header">
+                <h3>🚚 قائمة الطلبات</h3>
+                <span>(مرتبة حسب كود المنطقة)</span>
+            </div>
+            <div class="orders-list" id="ordersList">
+                <div class="empty-message">لا توجد طلبات بعد</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال إضافة طلب جديد -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ إضافة طلب جديد</h2>
+                <span class="close-modal" id="closeOrderModalBtn">&times;</span>
+            </div>
+            <form id="orderForm">
+                <div class="form-grid">
+                    <div class="full-width">
+                        <label class="input-label">المنطقة</label>
+                        <select id="orderRegion" class="input-select" required>
+                            <option value="">-- اختر المنطقة --</option>
+                        </select>
+                    </div>
+                    <div class="full-width">
+                        <label class="input-label">اسم الزبون</label>
+                        <input type="text" id="customerName" class="input-field" required>
+                    </div>
+                    <div class="full-width">
+                        <label class="input-label">رقم الهاتف</label>
+                        <input type="tel" id="customerPhone" class="input-field" required>
+                    </div>
+                    <div>
+                        <label class="input-label">المبلغ (ر.س)</label>
+                        <input type="number" id="orderAmount" class="input-number" min="0" step="0.01" required>
+                    </div>
+                    <div>
+                        <label class="input-label">الأولوية</label>
+                        <select id="orderPriority" class="input-priority">
+                            <option value="عادي">🟡 عادي</option>
+                            <option value="عاجل">🔴 عاجل</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="input-label">صورة (اختياري)</label>
+                        <input type="file" id="orderImage" accept="image/*" class="input-field file-input">
+                    </div>
+                    <div class="full-width">
+                        <label class="input-label">ملاحظات الزبون</label>
+                        <textarea id="customerNotes" class="input-textarea" placeholder="عنوان أو ملاحظات"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-save">💾 حفظ الطلب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال إدارة المناطق -->
+    <div class="modal" id="regionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🗂 المناطق والرموز</h2>
+                <span class="close-modal" id="closeModalBtn">&times;</span>
+            </div>
+            <div class="region-form">
+                <input type="text" id="regionName" placeholder="اسم المنطقة">
+                <input type="text" id="regionCode" placeholder="كود فريد">
+                <button class="btn-add" id="addRegionBtn">➕ إضافة</button>
+            </div>
+            <ul class="items-list" id="regionsList"></ul>
+        </div>
+    </div>
+
+    <!-- مودال تعديل الطلب -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ تعديل الطلب</h2>
+                <span class="close-modal" id="closeEditModalBtn">&times;</span>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editOrderId">
+                <div class="form-grid">
+                    <div class="full-width">
+                        <label>المنطقة</label>
+                        <select id="editRegion" class="input-select" required></select>
+                    </div>
+                    <div class="full-width">
+                        <label>اسم الزبون</label>
+                        <input type="text" id="editCustomerName" class="input-field" required>
+                    </div>
+                    <div class="full-width">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="editCustomerPhone" class="input-field" required>
+                    </div>
+                    <div>
+                        <label>المبلغ (ر.س)</label>
+                        <input type="number" id="editAmount" class="input-number" min="0" step="0.01" required>
+                    </div>
+                    <div>
+                        <label>الأولوية</label>
+                        <select id="editPriority" class="input-priority">
+                            <option value="عادي">🟡 عادي</option>
+                            <option value="عاجل">🔴 عاجل</option>
+                        </select>
+                    </div>
+                    <div class="full-width">
+                        <label>ملاحظات الزبون</label>
+                        <textarea id="editNotes" class="input-textarea"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-save">💾 حفظ التعديل</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            // مفاتيح localStorage
+            const REGIONS_KEY = 'delivery_regions_pro';
+            const ORDERS_KEY = 'delivery_orders_pro_v7';
+            const DARK_MODE_KEY = 'dark_mode';
+
+            // البيانات
+            let regions = [];
+            let orders = [];
+
+            // حالة الفلتر
+            let showUrgentOnly = false;
+
+            // عناصر DOM
+            const regionSelect = document.getElementById('orderRegion');
+            const ordersListDiv = document.getElementById('ordersList');
+            const totalSpan = document.getElementById('totalOrders');
+            const completedSpan = document.getElementById('completedOrders');
+            const pendingSpan = document.getElementById('pendingOrders');
+            const urgentSpan = document.getElementById('urgentOrders');
+            const totalAmountSpan = document.getElementById('totalAmount');
+            const totalTimeSpan = document.getElementById('totalTime');
+            const searchInput = document.getElementById('searchInput');
+            const manageRegionsBtn = document.getElementById('manageRegionsBtn');
+            const addOrderBtn = document.getElementById('addOrderBtn');
+            const filterUrgentBtn = document.getElementById('filterUrgentBtn');
+            const regionModal = document.getElementById('regionModal');
+            const orderModal = document.getElementById('orderModal');
+            const editModal = document.getElementById('editModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const closeOrderModalBtn = document.getElementById('closeOrderModalBtn');
+            const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+            const regionsListUl = document.getElementById('regionsList');
+            const addRegionBtn = document.getElementById('addRegionBtn');
+            const regionNameInput = document.getElementById('regionName');
+            const regionCodeInput = document.getElementById('regionCode');
+            const exportBtn = document.getElementById('exportExcelBtn');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // عناصر نموذج الطلب
+            const orderForm = document.getElementById('orderForm');
+            const customerNameInput = document.getElementById('customerName');
+            const customerPhoneInput = document.getElementById('customerPhone');
+            const customerNotesInput = document.getElementById('customerNotes');
+            const orderPriorityInput = document.getElementById('orderPriority');
+            const orderAmountInput = document.getElementById('orderAmount');
+            const orderImageInput = document.getElementById('orderImage');
+
+            // عناصر مودال التعديل
+            const editForm = document.getElementById('editForm');
+            const editOrderId = document.getElementById('editOrderId');
+            const editRegion = document.getElementById('editRegion');
+            const editCustomerName = document.getElementById('editCustomerName');
+            const editCustomerPhone = document.getElementById('editCustomerPhone');
+            const editAmount = document.getElementById('editAmount');
+            const editPriority = document.getElementById('editPriority');
+            const editNotes = document.getElementById('editNotes');
+
+            // ===== الوضع الليلي =====
+            function loadDarkMode() {
+                const dark = localStorage.getItem(DARK_MODE_KEY) === 'true';
+                if (dark) {
+                    document.body.classList.add('dark-mode');
+                    darkModeToggle.textContent = '☀️';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    darkModeToggle.textContent = '🌙';
+                }
+            }
+            function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem(DARK_MODE_KEY, isDark);
+                darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+            }
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+            loadDarkMode();
+
+            // ===== تحميل البيانات =====
+            function loadRegions() {
+                try {
+                    const stored = localStorage.getItem(REGIONS_KEY);
+                    regions = stored ? JSON.parse(stored) : [];
+                    if (!Array.isArray(regions)) regions = [];
+                } catch { regions = []; }
+                regions.sort((a, b) => (Number(a.code) || a.code) - (Number(b.code) || b.code));
+            }
+            function loadOrders() {
+                try {
+                    const stored = localStorage.getItem(ORDERS_KEY);
+                    orders = stored ? JSON.parse(stored) : [];
+                    if (!Array.isArray(orders)) orders = [];
+                } catch { orders = []; }
+            }
+            function saveRegions() { localStorage.setItem(REGIONS_KEY, JSON.stringify(regions)); }
+            function saveOrders() { localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)); }
+
+            // ===== تحديث قوائم المناطق =====
+            function populateRegionSelect(targetSelect = regionSelect) {
+                targetSelect.innerHTML = '<option value="">-- اختر المنطقة --</option>';
+                regions.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r.id;
+                    option.textContent = `${r.name} (كود ${r.code})`;
+                    targetSelect.appendChild(option);
+                });
+            }
+
+            // ===== عرض المناطق في المودال =====
+            function renderRegionsList() {
+                regionsListUl.innerHTML = '';
+                if (regions.length === 0) {
+                    regionsListUl.innerHTML = '<li style="text-align:center; padding:1rem;">لا توجد مناطق بعد</li>';
+                    return;
+                }
+                regions.forEach((region, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'item-li';
+                    li.innerHTML = `
+                        <span><strong>${escapeHTML(region.name)}</strong> <span class="item-code">${escapeHTML(region.code)}</span></span>
+                        <button class="delete-item" data-index="${index}">🗑</button>
+                    `;
+                    regionsListUl.appendChild(li);
+                });
+                document.querySelectorAll('.delete-item').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const idx = btn.getAttribute('data-index');
+                        if (idx !== null) {
+                            const regionId = regions[idx]?.id;
+                            if (orders.some(o => o.regionId === regionId)) {
+                                alert('لا يمكن حذف المنطقة لأن هناك طلبات مرتبطة بها.');
+                                return;
+                            }
+                            regions.splice(idx, 1);
+                            saveRegions();
+                            loadRegions();
+                            renderRegionsList();
+                            populateRegionSelect();
+                            renderOrders();
+                        }
+                    });
+                });
+            }
+
+            // ===== إضافة منطقة =====
+            function addRegion() {
+                const name = regionNameInput.value.trim();
+                const code = regionCodeInput.value.trim();
+                if (!name || !code) return alert('الرجاء إدخال الاسم والكود');
+                if (regions.some(r => r.code === code)) return alert('الكود مستخدم مسبقاً');
+                regions.push({ id: 'r_' + Date.now() + Math.random().toString(36).substr(2,5), name, code });
+                saveRegions();
+                loadRegions();
+                regionNameInput.value = '';
+                regionCodeInput.value = '';
+                renderRegionsList();
+                populateRegionSelect();
+            }
+
+            // ===== إضافة طلب جديد =====
+            function addOrder(event) {
+                event.preventDefault();
+                const regionId = regionSelect.value;
+                const customerName = customerNameInput.value.trim();
+                const customerPhone = customerPhoneInput.value.trim();
+                const customerNotes = customerNotesInput.value.trim();
+                const priority = orderPriorityInput.value;
+                const amount = parseFloat(orderAmountInput.value);
+                const imageFile = orderImageInput.files[0];
+
+                if (!regionId || !customerName || !customerPhone || isNaN(amount)) {
+                    alert('الرجاء اختيار المنطقة وإدخال اسم الزبون ورقم الهاتف والمبلغ');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // وقت البدء للطلب الجديد = الآن
+                    const now = Date.now();
+                    const newOrder = {
+                        id: 'o_' + Date.now() + Math.random().toString(36).substr(2,5),
+                        regionId,
+                        customerName,
+                        customerPhone,
+                        customerNotes,
+                        priority,
+                        amount: amount,
+                        image: e.target.result || null,
+                        done: false,
+                        startTime: now,      // وقت البدء الفعلي (قد يُعدل لاحقاً عند بدء التنفيذ المتسلسل)
+                        endTime: null,
+                        duration: null
+                    };
+                    orders.push(newOrder);
+                    saveOrders();
+
+                    // إعادة تعيين الحقول وإغلاق المودال
+                    customerNameInput.value = '';
+                    customerPhoneInput.value = '';
+                    customerNotesInput.value = '';
+                    orderAmountInput.value = '';
+                    orderImageInput.value = '';
+                    orderModal.classList.remove('show');
+                    renderOrders();
+                };
+                if (imageFile) {
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    reader.onload({ target: { result: null } });
+                }
+            }
+
+            // ===== ترتيب الطلبات حسب كود المنطقة (لمساعدتنا في تحديد التالي) =====
+            function getSortedOrders() {
+                const regionMap = Object.fromEntries(regions.map(r => [r.id, r]));
+                return [...orders].sort((a, b) => {
+                    const codeA = regionMap[a.regionId]?.code || '';
+                    const codeB = regionMap[b.regionId]?.code || '';
+                    return (Number(codeA) || codeA) - (Number(codeB) || codeB);
+                });
+            }
+
+            // ===== تبديل حالة الإنجاز مع منطق الوقت المتسلسل =====
+            function toggleDone(orderId, checked) {
+                const order = orders.find(o => o.id === orderId);
+                if (!order) return;
+
+                if (checked) {
+                    // تم توصيل هذا الطلب
+                    const now = Date.now();
+                    order.endTime = now;
+                    order.duration = now - order.startTime; // المدة الفعلية لهذا الطلب
+                    order.done = true;
+
+                    // البحث عن الطلب التالي غير المنجز (بنفس الترتيب)
+                    const sorted = getSortedOrders();
+                    const currentIndex = sorted.findIndex(o => o.id === orderId);
+                    if (currentIndex !== -1) {
+                        // ابحث عن التالي غير المنجز
+                        for (let i = currentIndex + 1; i < sorted.length; i++) {
+                            const next = sorted[i];
+                            if (!next.done) {
+                                // نبدأ وقت الطلب التالي من الآن
+                                next.startTime = now;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    // إلغاء التوصيل: نحتاج إلى إعادة ضبط الأوقات؟ هذا معقد. سنبسط: نعيد تعيين endTime و duration
+                    order.endTime = null;
+                    order.duration = null;
+                    order.done = false;
+                    // لا نغير startTime للطلبات الأخرى (قد يسبب عدم دقة لكنه مقبول)
+                }
+
+                saveOrders();
+                renderOrders();
+            }
+
+            // ===== عرض الطلبات مع الفلترة =====
+            function renderOrders() {
+                const regionMap = Object.fromEntries(regions.map(r => [r.id, r]));
+
+                // ترتيب حسب كود المنطقة
+                const sorted = getSortedOrders();
+
+                // تطبيق البحث النصي
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                let filtered = sorted;
+                if (searchTerm) {
+                    filtered = sorted.filter(o => {
+                        const region = regionMap[o.regionId];
+                        return (region?.name?.toLowerCase().includes(searchTerm) ||
+                                region?.code?.toLowerCase().includes(searchTerm) ||
+                                o.customerName.toLowerCase().includes(searchTerm) ||
+                                o.customerPhone.includes(searchTerm));
+                    });
+                }
+
+                // تطبيق فلتر العاجل
+                if (showUrgentOnly) {
+                    filtered = filtered.filter(o => o.priority === 'عاجل');
+                }
+
+                if (!filtered.length) {
+                    ordersListDiv.innerHTML = '<div class="empty-message">لا توجد نتائج</div>';
+                    updateStats();
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(order => {
+                    const region = regionMap[order.regionId] || { name: 'منطقة محذوفة', code: '?' };
+                    const doneClass = order.done ? 'done' : '';
+                    const phoneClean = order.customerPhone.replace(/\s+/g, '');
+                    const waMessage = encodeURIComponent(`السلام عليكم، طلبك من منطقة ${region.name} (كود ${region.code})، الزبون: ${order.customerName}. المبلغ: ${order.amount} ر.س. ملاحظات: ${order.customerNotes || 'لا يوجد'}`);
+                    const waLink = phoneClean ? `https://wa.me/${phoneClean}?text=${waMessage}` : '#';
+                    const telLink = phoneClean ? `tel:${phoneClean}` : '#';
+
+                    let timeText = '';
+                    if (order.done && order.duration) {
+                        const minutes = Math.floor(order.duration / 60000);
+                        const seconds = Math.floor((order.duration % 60000) / 1000);
+                        timeText = `⏱️ استغرق: ${minutes} دقيقة ${seconds} ثانية`;
+                    } else if (!order.done && order.startTime) {
+                        const elapsed = Date.now() - order.startTime;
+                        const minutes = Math.floor(elapsed / 60000);
+                        const seconds = Math.floor((elapsed % 60000) / 1000);
+                        timeText = `⏳ قيد التنفيذ: ${minutes} دقيقة ${seconds} ثانية`;
+                    }
+
+                    html += `
+                        <div class="order-card ${doneClass}" data-order-id="${order.id}">
+                            <div class="order-region-code">${escapeHTML(region.name)} · كود ${escapeHTML(region.code)}</div>
+                            <div class="order-detail-row">
+                                <div class="order-detail-item"><strong>الزبون:</strong> <span>${escapeHTML(order.customerName)}</span></div>
+                                <div class="order-detail-item"><strong>الهاتف:</strong> <span dir="ltr">${escapeHTML(order.customerPhone)}</span></div>
+                                <div class="order-detail-item"><strong>الأولوية:</strong> <span>${order.priority === 'عاجل' ? '🔴 عاجل' : '🟡 عادي'}</span></div>
+                                <div class="order-amount"><strong>💰</strong> ${order.amount} ر.س</div>
+                            </div>
+                            ${order.customerNotes ? `<div class="order-notes">📝 ${escapeHTML(order.customerNotes)}</div>` : ''}
+                            ${order.image ? `<img src="${order.image}" class="order-image" alt="صورة الطلب">` : ''}
+                            ${timeText ? `<div class="order-time">${timeText}</div>` : ''}
+                            <div class="order-actions">
+                                <a class="action-btn call" href="${telLink}" target="_blank">📞 اتصال</a>
+                                <a class="action-btn whatsapp" href="${waLink}" target="_blank">📱 واتساب</a>
+                                <label class="action-btn done-toggle">
+                                    <input type="checkbox" class="done-checkbox" data-id="${order.id}" ${order.done ? 'checked' : ''}> تم
+                                </label>
+                                <button class="action-btn edit" data-id="${order.id}">✏️ تعديل</button>
+                                <button class="action-btn delete" data-id="${order.id}">🗑 حذف</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                ordersListDiv.innerHTML = html;
+
+                // أحداث الـ checkbox
+                document.querySelectorAll('.done-checkbox').forEach(cb => {
+                    cb.addEventListener('change', function(e) {
+                        e.preventDefault();
+                        toggleDone(this.getAttribute('data-id'), this.checked);
+                    });
+                });
+
+                // أحداث التعديل
+                document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const orderId = btn.getAttribute('data-id');
+                        const order = orders.find(o => o.id === orderId);
+                        if (order) openEditModal(order);
+                    });
+                });
+
+                // أحداث الحذف
+                document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const orderId = btn.getAttribute('data-id');
+                        if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
+                            orders = orders.filter(o => o.id !== orderId);
+                            saveOrders();
+                            renderOrders();
+                        }
+                    });
+                });
+
+                updateStats();
+                updateChart();
+            }
+
+            // ===== فتح مودال التعديل =====
+            function openEditModal(order) {
+                editOrderId.value = order.id;
+                populateRegionSelect(editRegion);
+                editRegion.value = order.regionId;
+                editCustomerName.value = order.customerName;
+                editCustomerPhone.value = order.customerPhone;
+                editAmount.value = order.amount;
+                editPriority.value = order.priority || 'عادي';
+                editNotes.value = order.customerNotes || '';
+                editModal.classList.add('show');
+            }
+
+            // ===== حفظ التعديل =====
+            function handleEditSubmit(e) {
+                e.preventDefault();
+                const id = editOrderId.value;
+                const order = orders.find(o => o.id === id);
+                if (!order) return;
+
+                order.regionId = editRegion.value;
+                order.customerName = editCustomerName.value.trim();
+                order.customerPhone = editCustomerPhone.value.trim();
+                order.amount = parseFloat(editAmount.value);
+                order.priority = editPriority.value;
+                order.customerNotes = editNotes.value.trim();
+
+                saveOrders();
+                editModal.classList.remove('show');
+                renderOrders();
+            }
+
+            // ===== تحديث الإحصائيات (مع إجمالي الوقت) =====
+            function updateStats() {
+                const total = orders.length;
+                const completed = orders.filter(o => o.done).length;
+                const pending = total - completed;
+                const urgent = orders.filter(o => o.priority === 'عاجل' && !o.done).length;
+                const totalAmount = orders.filter(o => o.done).reduce((sum, o) => sum + (o.amount || 0), 0);
+                
+                // إجمالي الوقت: مجموع durations للطلبات المنجزة (بالدقائق)
+                const totalMinutes = orders
+                    .filter(o => o.done && o.duration)
+                    .reduce((sum, o) => sum + o.duration, 0) / 60000;
+                
+                totalSpan.textContent = total;
+                completedSpan.textContent = completed;
+                pendingSpan.textContent = pending;
+                urgentSpan.textContent = urgent;
+                totalAmountSpan.innerHTML = `💰 ${totalAmount.toFixed(2)} ر.س`;
+                totalTimeSpan.innerHTML = `⏱️ ${totalMinutes.toFixed(1)} د`;
+            }
+
+            // ===== تحديث الرسم البياني =====
+            function updateChart() {
+                const total = orders.length || 1;
+                const pending = orders.filter(o => !o.done).length;
+                const completed = orders.filter(o => o.done).length;
+                const urgent = orders.filter(o => o.priority === 'عاجل' && !o.done).length;
+
+                document.getElementById('barPending').style.height = (pending / total * 60) + 'px';
+                document.getElementById('barCompleted').style.height = (completed / total * 60) + 'px';
+                document.getElementById('barUrgent').style.height = (urgent / total * 60) + 'px';
+            }
+
+            // ===== تصدير Excel مع إضافة الوقت المتسلسل =====
+            function exportToExcel() {
+                const regionMap = Object.fromEntries(regions.map(r => [r.id, r]));
+                const data = orders.map(o => {
+                    const duration = o.duration ? (o.duration / 60000).toFixed(2) + ' دقيقة' : 'لم يكتمل';
+                    return {
+                        المنطقة: regionMap[o.regionId]?.name || '',
+                        'كود المنطقة': regionMap[o.regionId]?.code || '',
+                        الزبون: o.customerName,
+                        الهاتف: o.customerPhone,
+                        المبلغ: o.amount,
+                        الأولوية: o.priority,
+                        ملاحظات: o.customerNotes,
+                        'وقت البدء': new Date(o.startTime).toLocaleString('ar-EG'),
+                        'وقت الانتهاء': o.endTime ? new Date(o.endTime).toLocaleString('ar-EG') : '',
+                        'المدة (دقيقة)': o.duration ? (o.duration / 60000).toFixed(2) : '',
+                        تم: o.done ? 'نعم' : 'لا'
+                    };
+                });
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'الطلبات');
+                XLSX.writeFile(wb, 'طلبات_مندوب_مع_الوقت_المتسلسل.xlsx');
+            }
+
+            // ===== مساعد HTML escape =====
+            function escapeHTML(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    if (m === '"') return '&quot;';
+                    return m;
+                });
+            }
+
+            // ===== أحداث =====
+            searchInput.addEventListener('input', renderOrders);
+
+            // فلتر العاجل
+            filterUrgentBtn.addEventListener('click', () => {
+                showUrgentOnly = !showUrgentOnly;
+                filterUrgentBtn.classList.toggle('active', showUrgentOnly);
+                renderOrders();
+            });
+
+            // فتح مودال المناطق
+            manageRegionsBtn.addEventListener('click', () => {
+                renderRegionsList();
+                regionModal.classList.add('show');
+            });
+            closeModalBtn.addEventListener('click', () => regionModal.classList.remove('show'));
+            window.addEventListener('click', (e) => { if (e.target === regionModal) regionModal.classList.remove('show'); });
+
+            // فتح مودال إضافة طلب
+            addOrderBtn.addEventListener('click', () => {
+                populateRegionSelect(regionSelect);
+                orderModal.classList.add('show');
+            });
+            closeOrderModalBtn.addEventListener('click', () => orderModal.classList.remove('show'));
+            window.addEventListener('click', (e) => { if (e.target === orderModal) orderModal.classList.remove('show'); });
+
+            // إضافة منطقة
+            addRegionBtn.addEventListener('click', (e) => { e.preventDefault(); addRegion(); });
+
+            // نموذج الطلب
+            orderForm.addEventListener('submit', addOrder);
+
+            // تصدير
+            exportBtn.addEventListener('click', exportToExcel);
+
+            // مودال التعديل
+            editForm.addEventListener('submit', handleEditSubmit);
+            closeEditModalBtn.addEventListener('click', () => editModal.classList.remove('show'));
+            window.addEventListener('click', (e) => { if (e.target === editModal) editModal.classList.remove('show'); });
+
+            // ===== تهيئة =====
+            loadRegions();
+            loadOrders();
+            populateRegionSelect();
+            renderOrders();
+
+            // تحديث الوقت كل ثانية لعرض التوقيت بدقة
+            setInterval(renderOrders, 1000);
+        })();
+    </script>
+</body>
+</html>
