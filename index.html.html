@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>مندوب برو · النسخة المتجاوبة بالكامل</title>
+    <title>علي كاظم · مندوب التوصيل</title>
     <style>
         * {
             margin: 0;
@@ -899,10 +899,10 @@
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- رأس التطبيق -->
+        <!-- رأس التطبيق مع اسم جديد -->
         <div class="app-header">
             <div class="icon-placeholder"><span>📱</span></div>
-            <h1>مندوب برو</h1>
+            <h1>علي كاظم</h1>
             <div class="settings-toggle" id="settingsToggle">⚙️</div>
             <div class="dark-mode-toggle" id="darkModeToggle">🌙</div>
         </div>
@@ -953,7 +953,6 @@
         </div>
     </div>
 
-    <!-- باقي المودالات (نفس الكود السابق مع تحسينات للهاتف) -->
     <!-- مودال الإعدادات -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
@@ -961,7 +960,6 @@
                 <h2>⚙️ الإعدادات</h2>
                 <span class="close-modal" id="closeSettingsModal">&times;</span>
             </div>
-            <!-- محتوى الإعدادات (نفس السابق) -->
             <div class="settings-section">
                 <h3>💰 إعدادات الربح</h3>
                 <div class="setting-item">
@@ -1070,8 +1068,9 @@
                         <label class="input-label">رقم الهاتف</label>
                         <div class="phone-input-wrapper">
                             <span class="country-code">+964</span>
-                            <input type="tel" id="customerPhone" class="input-field" required placeholder="78××××××××" dir="ltr">
+                            <input type="tel" id="customerPhone" class="input-field" required placeholder="077××××××××" dir="ltr">
                         </div>
+                        <small style="color: var(--text-secondary); display: block; margin-top: 4px;">11 رقمًا، يبدأ بـ 077 أو 078 أو 079</small>
                     </div>
                     <div>
                         <label class="input-label">المبلغ (د.ع)</label>
@@ -1136,7 +1135,7 @@
                         <label>رقم الهاتف</label>
                         <div class="phone-input-wrapper">
                             <span class="country-code">+964</span>
-                            <input type="tel" id="editCustomerPhone" class="input-field" required placeholder="78××××××××" dir="ltr">
+                            <input type="tel" id="editCustomerPhone" class="input-field" required placeholder="077××××××××" dir="ltr">
                         </div>
                     </div>
                     <div>
@@ -1160,13 +1159,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        // نفس الكود السابق بالكامل مع الحفاظ على كل الوظائف
-        // (تم تضمين كل الدوال السابقة هنا ولكن اختصاراً للمسافة لم يتم كتابتها مرة أخرى)
-        // في النسخة النهائية سيتم وضع الكود الكامل هنا
-        
-        // للتبسيط، سأضع الكود الكامل ولكن مع التركيز على التعديلات
         (function() {
             'use strict';
 
@@ -1271,17 +1264,24 @@
                 return amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             }
 
+            // دالة للتحقق من صيغة الرقم العراقي (11 رقم، يبدأ بـ 077 أو 078 أو 079)
             function validateIraqiPhone(phone) {
+                // إزالة المسافات والشرطات
                 let cleaned = phone.replace(/\s+/g, '').replace(/-/g, '');
+                // يجب أن يتكون من أرقام فقط
                 if (!/^\d+$/.test(cleaned)) return false;
-                if (!cleaned.startsWith('78') && !cleaned.startsWith('79')) return false;
-                return cleaned.length === 10;
+                // يجب أن يبدأ بـ 077 أو 078 أو 079
+                if (!cleaned.startsWith('077') && !cleaned.startsWith('078') && !cleaned.startsWith('079')) return false;
+                // الطول الكلي 11 رقم
+                return cleaned.length === 11;
             }
 
+            // دالة لتنظيف رقم الهاتف (إزالة كل الرموز والمسافات)
             function cleanPhoneNumber(phone) {
                 return phone.replace(/\s+/g, '').replace(/[^\d]/g, '');
             }
 
+            // دالة للحصول على الرقم الكامل مع المفتاح
             function getFullPhoneNumber(localNumber) {
                 const cleaned = cleanPhoneNumber(localNumber);
                 return '964' + cleaned;
@@ -1517,7 +1517,7 @@
 
                 const cleanedLocal = cleanPhoneNumber(customerPhone);
                 if (!validateIraqiPhone(cleanedLocal)) {
-                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح (10 أرقام يبدأ بـ 78 أو 79)');
+                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح مكون من 11 رقمًا ويبدأ بـ 077 أو 078 أو 079');
                     return;
                 }
                 customerPhone = cleanedLocal;
@@ -1847,7 +1847,7 @@
                 let customerPhone = editCustomerPhone.value.trim();
                 const cleanedLocal = cleanPhoneNumber(customerPhone);
                 if (!validateIraqiPhone(cleanedLocal)) {
-                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح');
+                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح يبدأ بـ 077 أو 078 أو 079 ويتكون من 11 رقمًا');
                     return;
                 }
 
@@ -1918,7 +1918,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `مندوب_برو_نسخة_احتياطية_${new Date().toISOString().slice(0,10)}.json`;
+                a.download = `علي_كاظم_نسخة_احتياطية_${new Date().toISOString().slice(0,10)}.json`;
                 a.click();
             }
 
@@ -2003,4 +2003,5 @@
     </script>
 </body>
 </html>
+
 
