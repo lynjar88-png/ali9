@@ -195,26 +195,27 @@
             white-space: nowrap;
         }
 
-        /* البحث والإجراءات */
+        /* البحث والإجراءات (زر عاجل بجانب الإضافة) */
         .search-section {
             padding: clamp(0.6rem, 1.5vw, 1rem) clamp(0.8rem, 2vw, 1.5rem);
             background: var(--bg-app);
             display: flex;
             flex-wrap: wrap;
-            gap: clamp(0.4rem, 1.2vw, 0.8rem);
             align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
         }
 
         .search-row {
             display: flex;
             gap: clamp(0.3rem, 1vw, 0.6rem);
             align-items: center;
-            flex: 2 1 300px;
-            min-width: 200px;
+            flex: 3 1 400px;
+            min-width: 250px;
         }
 
         .search-field {
-            flex: 1;
+            flex: 2;
             padding: clamp(0.5rem, 1.2vw, 0.8rem) clamp(0.8rem, 2vw, 1.2rem);
             border: 2px solid var(--input-border);
             border-radius: 40px;
@@ -246,7 +247,18 @@
             border-color: var(--btn-primary);
         }
 
-        /* فلتر العاجل */
+        /* فلتر العاجل بجانب الإضافة */
+        .filter-urgent {
+            background: transparent;
+            border: 2px solid var(--btn-outline);
+            color: var(--btn-outline);
+            padding: clamp(0.4rem, 1.2vw, 0.7rem) clamp(0.6rem, 1.8vw, 1.2rem);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 2vw, 0.95rem);
+            cursor: pointer;
+            white-space: nowrap;
+        }
         .filter-urgent.active {
             background: #dc2626;
             border-color: #b91c1c;
@@ -584,7 +596,7 @@
             cursor: pointer;
         }
 
-        /* تحسينات إضافية */
+        /* تحسينات للشاشات الصغيرة */
         @media (max-width: 600px) {
             .search-section {
                 flex-direction: column;
@@ -593,7 +605,7 @@
             .search-row {
                 width: 100%;
             }
-            .btn-outline {
+            .btn-outline, .filter-urgent {
                 justify-content: center;
             }
             .stats-bar {
@@ -624,16 +636,13 @@
             <div class="total-time" id="totalTime">⏱️ 0 د</div>
         </div>
 
-        <!-- البحث والإجراءات (تم إزالة زر التصدير) -->
+        <!-- البحث والإجراءات (زر عاجل بجانب الإضافة) -->
         <div class="search-section">
             <div class="search-row">
                 <input type="text" id="searchInput" class="search-field" placeholder="🔍 بحث (منطقة، زبون، كود)">
                 <button class="btn-outline" id="manageRegionsBtn">🗂 المناطق</button>
                 <button class="btn-outline btn-primary" id="addOrderBtn">➕ إضافة</button>
-            </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <button class="btn-outline" id="filterUrgentBtn">🔴 عاجل فقط</button>
-                <!-- تم إزالة زر التصدير -->
+                <button class="filter-urgent" id="filterUrgentBtn">🔴 عاجل فقط</button>
             </div>
         </div>
 
@@ -656,7 +665,7 @@
         </div>
     </div>
 
-    <!-- مودال إضافة طلب جديد -->
+    <!-- مودال إضافة طلب جديد (مع تحسين رقم الهاتف) -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -677,7 +686,8 @@
                     </div>
                     <div class="full-width">
                         <label class="input-label">رقم الهاتف</label>
-                        <input type="tel" id="customerPhone" class="input-field" required>
+                        <input type="tel" id="customerPhone" class="input-field" required placeholder="مثال: 07812345678">
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.2rem;">يُفضل إدخال رقم عراقي (07xxxxxxxx)</small>
                     </div>
                     <div>
                         <label class="input-label">المبلغ (د.ع)</label>
@@ -740,7 +750,7 @@
                     </div>
                     <div class="full-width">
                         <label>رقم الهاتف</label>
-                        <input type="tel" id="editCustomerPhone" class="input-field" required>
+                        <input type="tel" id="editCustomerPhone" class="input-field" required placeholder="مثال: 07812345678">
                     </div>
                     <div>
                         <label>المبلغ (د.ع)</label>
@@ -820,8 +830,24 @@
             // دالة لتنسيق المبلغ بفواصل الآلاف (مثل 30,000)
             function formatAmount(amount) {
                 if (amount == null || isNaN(amount)) return '0';
-                // تحويل الرقم إلى سلسلة وإضافة فواصل الآلاف
                 return amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+
+            // دالة للتحقق من صيغة الرقم العراقي (تبدأ بـ 07 وتتكون من 11 رقم)
+            function validateIraqiPhone(phone) {
+                // إزالة المسافات والشرطات
+                let cleaned = phone.replace(/\s+/g, '').replace(/-/g, '');
+                // يجب أن يتكون من أرقام فقط
+                if (!/^\d+$/.test(cleaned)) return false;
+                // يجب أن يبدأ بـ 07
+                if (!cleaned.startsWith('07')) return false;
+                // الطول الكلي 11 رقم
+                return cleaned.length === 11;
+            }
+
+            // دالة لتنظيف الرقم (إزالة كل الرموز والمسافات)
+            function cleanPhoneNumber(phone) {
+                return phone.replace(/\s+/g, '').replace(/[^\d]/g, '');
             }
 
             // Dark mode
@@ -922,7 +948,7 @@
                 event.preventDefault();
                 const regionId = regionSelect.value;
                 const customerName = customerNameInput.value.trim();
-                const customerPhone = customerPhoneInput.value.trim();
+                let customerPhone = customerPhoneInput.value.trim();
                 const customerNotes = customerNotesInput.value.trim();
                 const priority = orderPriorityInput.value;
                 const amount = parseFloat(orderAmountInput.value);
@@ -932,6 +958,15 @@
                     alert('الرجاء اختيار المنطقة وإدخال اسم الزبون ورقم الهاتف والمبلغ');
                     return;
                 }
+
+                // تنظيف رقم الهاتف من المسافات والشرطات
+                const cleanedPhone = cleanPhoneNumber(customerPhone);
+                if (!validateIraqiPhone(cleanedPhone)) {
+                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح مكون من 11 رقمًا ويبدأ بـ 07 (مثال: 07812345678)');
+                    return;
+                }
+                // استخدام الرقم المنظف
+                customerPhone = cleanedPhone;
 
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -1130,9 +1165,16 @@
                 const order = orders.find(o => o.id === id);
                 if (!order) return;
 
+                let customerPhone = editCustomerPhone.value.trim();
+                const cleanedPhone = cleanPhoneNumber(customerPhone);
+                if (!validateIraqiPhone(cleanedPhone)) {
+                    alert('رقم الهاتف غير صحيح. يرجى إدخال رقم عراقي صحيح يبدأ بـ 07 ويتكون من 11 رقمًا');
+                    return;
+                }
+
                 order.regionId = editRegion.value;
                 order.customerName = editCustomerName.value.trim();
-                order.customerPhone = editCustomerPhone.value.trim();
+                order.customerPhone = cleanedPhone;
                 order.amount = parseFloat(editAmount.value);
                 order.priority = editPriority.value;
                 order.customerNotes = editNotes.value.trim();
